@@ -1,0 +1,22 @@
+.menu-business {
+  text-align: center;
+  padding: 24px 16px 16px;
+  background: var(--ion-color-primary);
+  color: white;
+
+  h3 {
+    margin: 8px 0 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+}
+
+ion-item.selected {
+  --background: rgba(var(--ion-color-primary-rgb), 0.1);
+  color: var(--ion-color-primary);
+  font-weight: 600;
+}
+
+ion-menu ion-content {
+  --background: var(--ion-background-color);
+}

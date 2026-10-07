@@ -1,0 +1,69 @@
+.business-name {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.period {
+  margin: 0 0 16px;
+  color: var(--ion-color-medium);
+  font-size: 0.9rem;
+}
+
+.summary-cards {
+  margin-bottom: 16px;
+}
+
+.balance-card {
+  margin: 0 0 12px;
+  text-align: center;
+
+  .card-value {
+    font-size: 2rem;
+    font-weight: 700;
+  }
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+
+  ion-card {
+    flex: 1;
+    margin: 0;
+  }
+}
+
+.card-label {
+  font-size: 0.85rem;
+  color: var(--ion-color-medium);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.card-value {
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.quick-actions {
+  margin: 16px 0;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 16px 0 8px;
+
+  h3 {
+    margin: 0;
+    font-size: 1.1rem;
+  }
+}
+
+.empty-state {
+  margin-top: 80px;
+}

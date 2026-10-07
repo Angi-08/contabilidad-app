@@ -1,0 +1,76 @@
+<ion-app>
+  <!-- Banner offline -->
+  @if (!network.isOnline()) {
+    <div class="offline-banner">
+      <ion-icon name="cloud-offline-outline"></ion-icon>
+      Modo offline – Los cambios se sincronizarán al reconectar
+    </div>
+  }
+
+  <!-- Side Menu -->
+  <ion-menu contentId="main-content" type="overlay">
+    <ion-header>
+      <ion-toolbar color="primary">
+        <ion-title>Contabilidad</ion-title>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content>
+      <div class="menu-business">
+        <ion-icon name="wallet-outline" size="large"></ion-icon>
+        <h3>{{ selectedBusinessName }}</h3>
+      </div>
+
+      <ion-list lines="none">
+        <ion-menu-toggle auto-hide="true">
+          <ion-item routerLink="/dashboard" routerLinkActive="selected" detail="false">
+            <ion-icon slot="start" name="home-outline"></ion-icon>
+            <ion-label>Dashboard</ion-label>
+          </ion-item>
+        </ion-menu-toggle>
+
+        <ion-menu-toggle auto-hide="true">
+          <ion-item routerLink="/transactions" routerLinkActive="selected" detail="false">
+            <ion-icon slot="start" name="list-outline"></ion-icon>
+            <ion-label>Movimientos</ion-label>
+          </ion-item>
+        </ion-menu-toggle>
+
+        <ion-menu-toggle auto-hide="true">
+          <ion-item routerLink="/categories" routerLinkActive="selected" detail="false">
+            <ion-icon slot="start" name="pricetags-outline"></ion-icon>
+            <ion-label>Categorías</ion-label>
+          </ion-item>
+        </ion-menu-toggle>
+
+        <ion-menu-toggle auto-hide="true">
+          <ion-item routerLink="/reports" routerLinkActive="selected" detail="false">
+            <ion-icon slot="start" name="bar-chart-outline"></ion-icon>
+            <ion-label>Reportes</ion-label>
+          </ion-item>
+        </ion-menu-toggle>
+
+        <ion-menu-toggle auto-hide="true">
+          <ion-item routerLink="/businesses" routerLinkActive="selected" detail="false">
+            <ion-icon slot="start" name="business-outline"></ion-icon>
+            <ion-label>Mis Negocios</ion-label>
+          </ion-item>
+        </ion-menu-toggle>
+      </ion-list>
+    </ion-content>
+
+    <ion-footer>
+      <ion-toolbar>
+        <ion-button expand="block" fill="clear" color="danger" (click)="logout()">
+          <ion-icon slot="start" name="log-out-outline"></ion-icon>
+          Cerrar sesión
+        </ion-button>
+      </ion-toolbar>
+    </ion-footer>
+  </ion-menu>
+
+  <!-- Main content -->
+  <div class="ion-page" id="main-content">
+    <ion-router-outlet></ion-router-outlet>
+  </div>
+</ion-app>

@@ -1,0 +1,67 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Reportes</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-item>
+    <ion-select
+      label="Período"
+      labelPlacement="stacked"
+      [value]="period()"
+      (ionChange)="onPeriodChange($event)"
+      interface="action-sheet">
+      <ion-select-option value="current">Mes actual</ion-select-option>
+      <ion-select-option value="previous">Mes anterior</ion-select-option>
+      <ion-select-option value="year">Año actual</ion-select-option>
+    </ion-select>
+  </ion-item>
+
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Resumen – {{ periodLabel }}</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <div class="summary-row">
+        <span>Ingresos</span>
+        <strong class="income-color">{{ income() | currency:currency:'symbol-narrow':'1.2-2' }}</strong>
+      </div>
+      <div class="summary-row">
+        <span>Gastos</span>
+        <strong class="expense-color">{{ expenses() | currency:currency:'symbol-narrow':'1.2-2' }}</strong>
+      </div>
+      <div class="summary-row total">
+        <span>Balance</span>
+        <strong [class.balance-positive]="balance() >= 0" [class.balance-negative]="balance() < 0">
+          {{ balance() | currency:currency:'symbol-narrow':'1.2-2' }}
+        </strong>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <h3>Por categoría</h3>
+
+  @if (byCategory().length === 0) {
+    <p class="ion-text-center" style="color: var(--ion-color-medium);">
+      No hay datos para este período
+    </p>
+  } @else {
+    <ion-list>
+      @for (item of byCategory(); track item.name) {
+        <ion-item>
+          <ion-label>
+            <h3>{{ item.name }}</h3>
+            <p>{{ item.type === 'income' ? 'Ingreso' : 'Gasto' }}</p>
+          </ion-label>
+          <ion-label slot="end" [class.income-color]="item.type === 'income'" [class.expense-color]="item.type === 'expense'">
+            {{ item.total | currency:currency:'symbol-narrow':'1.2-2' }}
+          </ion-label>
+        </ion-item>
+      }
+    </ion-list>
+  }
+</ion-content>

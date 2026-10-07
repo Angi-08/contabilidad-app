@@ -1,0 +1,26 @@
+.login-container {
+  max-width: 400px;
+  margin: 40px auto 0;
+}
+
+.logo {
+  text-align: center;
+  margin-bottom: 40px;
+
+  h1 {
+    margin: 8px 0 0;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--ion-color-primary);
+  }
+
+  p {
+    margin: 4px 0 0;
+    color: var(--ion-color-medium);
+  }
+}
+
+ion-item {
+  --background: transparent;
+  margin-bottom: 12px;
+}

@@ -1,0 +1,77 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/transactions"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ isEdit ? 'Editar movimiento' : 'Nuevo movimiento' }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form [formGroup]="form" (ngSubmit)="save()">
+    <ion-segment formControlName="type">
+      <ion-segment-button value="income">
+        <ion-label>Ingreso</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="expense">
+        <ion-label>Gasto</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+
+    <ion-item class="ion-margin-top">
+      <ion-input
+        label="Monto"
+        labelPlacement="floating"
+        type="number"
+        formControlName="amount"
+        inputmode="decimal"
+        step="0.01">
+      </ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-select
+        label="Categoría"
+        labelPlacement="floating"
+        formControlName="categoryId"
+        interface="action-sheet"
+        placeholder="Selecciona categoría">
+        @for (cat of categories(); track cat.id) {
+          <ion-select-option [value]="cat.id">{{ cat.name }}</ion-select-option>
+        }
+      </ion-select>
+    </ion-item>
+
+    @if (categories().length === 0) {
+      <p class="ion-padding-start" style="color: var(--ion-color-warning); font-size: 0.9rem;">
+        No hay categorías de este tipo. Crea una en la sección Categorías.
+      </p>
+    }
+
+    <ion-item>
+      <ion-input
+        label="Descripción (opcional)"
+        labelPlacement="floating"
+        type="text"
+        formControlName="description">
+      </ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-input
+        label="Fecha"
+        labelPlacement="floating"
+        type="date"
+        formControlName="date">
+      </ion-input>
+    </ion-item>
+
+    <ion-button expand="block" type="submit" [disabled]="form.invalid || loading" class="ion-margin-top">
+      @if (loading) {
+        <ion-spinner name="crescent"></ion-spinner>
+      } @else {
+        {{ isEdit ? 'Actualizar' : 'Guardar' }}
+      }
+    </ion-button>
+  </form>
+</ion-content>

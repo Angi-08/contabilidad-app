@@ -1,0 +1,106 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Dashboard</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="loadData($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  @if (!selectedBusiness) {
+    <div class="empty-state ion-text-center ion-padding">
+      <ion-icon name="wallet-outline" style="font-size: 64px; color: var(--ion-color-medium);"></ion-icon>
+      <h2>Selecciona un negocio</h2>
+      <p>Ve a "Mis Negocios" para crear o seleccionar uno.</p>
+      <ion-button routerLink="/businesses">Ir a Negocios</ion-button>
+    </div>
+  } @else {
+    <div class="ion-padding">
+      <h2 class="business-name">{{ selectedBusiness.name }}</h2>
+      <p class="period">Mes actual</p>
+
+      <!-- Resumen de balances -->
+      <div class="summary-cards">
+        <ion-card class="balance-card">
+          <ion-card-content>
+            <div class="card-label">Balance</div>
+            <div class="card-value" [class.balance-positive]="balance() >= 0" [class.balance-negative]="balance() < 0">
+              {{ balance() | currency:currency:'symbol-narrow':'1.2-2' }}
+            </div>
+          </ion-card-content>
+        </ion-card>
+
+        <div class="row">
+          <ion-card class="income-card">
+            <ion-card-content>
+              <div class="card-label">
+                <ion-icon name="trending-up-outline"></ion-icon> Ingresos
+              </div>
+              <div class="card-value income-color">
+                {{ income() | currency:currency:'symbol-narrow':'1.2-2' }}
+              </div>
+            </ion-card-content>
+          </ion-card>
+
+          <ion-card class="expense-card">
+            <ion-card-content>
+              <div class="card-label">
+                <ion-icon name="trending-down-outline"></ion-icon> Gastos
+              </div>
+              <div class="card-value expense-color">
+                {{ expenses() | currency:currency:'symbol-narrow':'1.2-2' }}
+              </div>
+            </ion-card-content>
+          </ion-card>
+        </div>
+      </div>
+
+      <!-- Acciones rápidas -->
+      <div class="quick-actions">
+        <ion-button expand="block" routerLink="/transactions/new" color="primary">
+          <ion-icon slot="start" name="add-outline"></ion-icon>
+          Nuevo movimiento
+        </ion-button>
+      </div>
+
+      <!-- Últimos movimientos -->
+      <div class="section-header">
+        <h3>Últimos movimientos</h3>
+        <ion-button fill="clear" size="small" routerLink="/transactions">
+          Ver todos
+          <ion-icon slot="end" name="arrow-forward-outline"></ion-icon>
+        </ion-button>
+      </div>
+
+      @if (recentTransactions().length === 0) {
+        <p class="ion-text-center ion-padding" style="color: var(--ion-color-medium);">
+          No hay movimientos este mes
+        </p>
+      } @else {
+        <ion-list lines="full">
+          @for (t of recentTransactions(); track t.id) {
+            <ion-item>
+              <ion-icon
+                slot="start"
+                [name]="t.type === 'income' ? 'trending-up-outline' : 'trending-down-outline'"
+                [color]="t.type === 'income' ? 'success' : 'danger'">
+              </ion-icon>
+              <ion-label>
+                <h3>{{ t.categoryName || 'Sin categoría' }}</h3>
+                <p>{{ t.description || '' }} · {{ t.date?.toDate ? (t.date.toDate() | date:'dd/MM/yyyy') : (t.date | date:'dd/MM/yyyy') }}</p>
+              </ion-label>
+              <ion-label slot="end" [class.income-color]="t.type === 'income'" [class.expense-color]="t.type === 'expense'">
+                {{ t.type === 'income' ? '+' : '-' }}{{ t.amount | currency:currency:'symbol-narrow':'1.2-2' }}
+              </ion-label>
+            </ion-item>
+          }
+        </ion-list>
+      }
+    </div>
+  }
+</ion-content>

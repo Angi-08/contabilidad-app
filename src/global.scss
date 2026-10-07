@@ -1,0 +1,67 @@
+/*
+ * App Global CSS
+ * ----------------------------------------------------------------------------
+ * Put style rules here that you want to apply globally. These styles are for
+ * the entire app and not just one component. Additionally, this file can be
+ * used as an entry point to import other CSS/Sass files to be included in the
+ * output CSS.
+ * For more information on global stylesheets, please see the
+ * documentation: https://ionicframework.com/docs/layout/global-stylesheets
+ */
+
+/* Core CSS required for Ionic components to work properly */
+@import "@ionic/angular/css/core.css";
+
+/* Basic CSS for apps built with Ionic */
+@import "@ionic/angular/css/normalize.css";
+@import "@ionic/angular/css/structure.css";
+@import "@ionic/angular/css/typography.css";
+@import "@ionic/angular/css/display.css";
+
+/* Optional CSS utils that can be commented out */
+@import "@ionic/angular/css/padding.css";
+@import "@ionic/angular/css/float-elements.css";
+@import "@ionic/angular/css/text-alignment.css";
+@import "@ionic/angular/css/text-transformation.css";
+@import "@ionic/angular/css/flex-utils.css";
+
+/* Custom styles */
+:root {
+  --ion-color-primary: #1e88e5;
+  --ion-color-primary-rgb: 30, 136, 229;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #1a78ca;
+  --ion-color-primary-tint: #3594e8;
+
+  --ion-color-success: #2e7d32;
+  --ion-color-danger: #c62828;
+  --ion-color-warning: #f9a825;
+}
+
+.income-color {
+  color: var(--ion-color-success) !important;
+}
+
+.expense-color {
+  color: var(--ion-color-danger) !important;
+}
+
+.balance-positive {
+  color: var(--ion-color-success);
+  font-weight: 600;
+}
+
+.balance-negative {
+  color: var(--ion-color-danger);
+  font-weight: 600;
+}
+
+.offline-banner {
+  background: #ff9800;
+  color: white;
+  text-align: center;
+  padding: 6px;
+  font-size: 13px;
+  font-weight: 500;
+}

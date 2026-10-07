@@ -1,0 +1,16 @@
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--ion-color-light);
+
+  &.total {
+    border-bottom: none;
+    margin-top: 8px;
+    font-size: 1.15rem;
+  }
+}
+
+h3 {
+  margin: 24px 0 12px;
+}
