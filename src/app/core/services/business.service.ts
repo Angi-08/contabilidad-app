@@ -42,8 +42,7 @@ export class BusinessService {
 
     const q = query(
       collection(this.firestore, this.COLLECTION),
-      where('ownerId', '==', uid),
-      orderBy('name')
+      where('ownerId', '==', uid)
     );
 
     return collectionData(q, { idField: 'id' }) as Observable<Business[]>;
