@@ -1,106 +1,197 @@
 <ion-header>
-  <ion-toolbar color="primary">
+  <ion-toolbar>
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
     <ion-title>Dashboard</ion-title>
   </ion-toolbar>
 </ion-header>
-
-<ion-content>
+<ion-content [fullscreen]="true">
   <ion-refresher slot="fixed" (ionRefresh)="loadData($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
-
   @if (!selectedBusiness) {
-    <div class="empty-state ion-text-center ion-padding">
-      <ion-icon name="wallet-outline" style="font-size: 64px; color: var(--ion-color-medium);"></ion-icon>
+    <div class="empty-state">
+      <div class="empty-icon">
+        <ion-icon name="wallet-outline"></ion-icon>
+      </div>
       <h2>Selecciona un negocio</h2>
-      <p>Ve a "Mis Negocios" para crear o seleccionar uno.</p>
-      <ion-button routerLink="/businesses">Ir a Negocios</ion-button>
+      <p>
+        Ve a <strong>Mis Negocios</strong> para crear o seleccionar
+        el negocio que deseas administrar.
+      </p>
+      <ion-button
+        routerLink="/businesses"
+        class="btn-cta">
+        <ion-icon slot="start" name="business-outline"></ion-icon>
+        Ir a Mis Negocios
+      </ion-button>
     </div>
   } @else {
-    <div class="ion-padding">
-      <h2 class="business-name">{{ selectedBusiness.name }}</h2>
-      <p class="period">Mes actual</p>
-
-      <!-- Resumen de balances -->
-      <div class="summary-cards">
-        <ion-card class="balance-card">
-          <ion-card-content>
-            <div class="card-label">Balance</div>
-            <div class="card-value" [class.balance-positive]="balance() >= 0" [class.balance-negative]="balance() < 0">
-              {{ balance() | currency:currency:'symbol-narrow':'1.2-2' }}
-            </div>
-          </ion-card-content>
-        </ion-card>
-
-        <div class="row">
-          <ion-card class="income-card">
-            <ion-card-content>
-              <div class="card-label">
-                <ion-icon name="trending-up-outline"></ion-icon> Ingresos
-              </div>
-              <div class="card-value income-color">
-                {{ income() | currency:currency:'symbol-narrow':'1.2-2' }}
-              </div>
-            </ion-card-content>
-          </ion-card>
-
-          <ion-card class="expense-card">
-            <ion-card-content>
-              <div class="card-label">
-                <ion-icon name="trending-down-outline"></ion-icon> Gastos
-              </div>
-              <div class="card-value expense-color">
-                {{ expenses() | currency:currency:'symbol-narrow':'1.2-2' }}
-              </div>
-            </ion-card-content>
-          </ion-card>
+    <div class="page-container">
+      <section class="business-header">
+        <div>
+          <p class="welcome-label">Resumen financiero</p>
+          <h1 class="business-name">
+            {{ selectedBusiness.name }}
+          </h1>
+          <div class="period">
+            <ion-icon name="calendar-outline"></ion-icon>
+            <span>Mes actual</span>
+          </div>
         </div>
-      </div>
-
-      <!-- Acciones rápidas -->
-      <div class="quick-actions">
-        <ion-button expand="block" routerLink="/transactions/new" color="primary">
-          <ion-icon slot="start" name="add-outline"></ion-icon>
-          Nuevo movimiento
+      </section>
+      <section class="balance-section">
+        <div class="balance-card">
+          <div class="balance-top">
+            <div class="balance-label">
+              <span>Balance disponible</span>
+            </div>
+            <div class="balance-icon">
+              <ion-icon name="wallet-outline"></ion-icon>
+            </div>
+          </div>
+          <div
+            class="balance-value"
+            [class.balance-positive]="balance() >= 0"
+            [class.balance-negative]="balance() < 0">
+            {{ balance() | currency:currency:'symbol-narrow':'1.2-2' }}
+          </div>
+          <div class="balance-footer">
+            <span>
+              {{ balance() >= 0 ? 'Balance positivo' : 'Balance negativo' }}
+            </span>
+            <ion-icon
+              [name]="balance() >= 0
+                ? 'trending-up-outline'
+                : 'trending-down-outline'">
+            </ion-icon>
+          </div>
+        </div>
+      </section>
+      <section class="financial-summary">
+        <div class="financial-card income-card">
+          <div class="financial-card-header">
+            <div class="financial-icon">
+              <ion-icon name="trending-up-outline"></ion-icon>
+            </div>
+            <span class="financial-label">
+              Ingresos
+            </span>
+          </div>
+          <div class="financial-value income-color">
+            {{ income() | currency:currency:'symbol-narrow':'1.2-2' }}
+          </div>
+          <span class="financial-description">
+            Total recibido
+          </span>
+        </div>
+        <div class="financial-card expense-card">
+          <div class="financial-card-header">
+            <div class="financial-icon">
+              <ion-icon name="trending-down-outline"></ion-icon>
+            </div>
+            <span class="financial-label">
+              Gastos
+            </span>
+          </div>
+          <div class="financial-value expense-color">
+            {{ expenses() | currency:currency:'symbol-narrow':'1.2-2' }}
+          </div>
+          <span class="financial-description">
+            Total gastado
+          </span>
+        </div>
+      </section>
+      <section class="quick-actions">
+        <ion-button
+          expand="block"
+          routerLink="/transactions/new"
+          class="btn-cta">
+          <span class="button-icon">
+            <ion-icon name="add-outline"></ion-icon>
+          </span>
+          <span>
+            Nuevo movimiento
+          </span>
+          <ion-icon
+            slot="end"
+            name="arrow-forward-outline">
+          </ion-icon>
         </ion-button>
-      </div>
-
-      <!-- Últimos movimientos -->
-      <div class="section-header">
-        <h3>Últimos movimientos</h3>
-        <ion-button fill="clear" size="small" routerLink="/transactions">
-          Ver todos
-          <ion-icon slot="end" name="arrow-forward-outline"></ion-icon>
-        </ion-button>
-      </div>
-
-      @if (recentTransactions().length === 0) {
-        <p class="ion-text-center ion-padding" style="color: var(--ion-color-medium);">
-          No hay movimientos este mes
-        </p>
-      } @else {
-        <ion-list lines="full">
-          @for (t of recentTransactions(); track t.id) {
-            <ion-item>
-              <ion-icon
-                slot="start"
-                [name]="t.type === 'income' ? 'trending-up-outline' : 'trending-down-outline'"
-                [color]="t.type === 'income' ? 'success' : 'danger'">
-              </ion-icon>
-              <ion-label>
-                <h3>{{ t.categoryName || 'Sin categoría' }}</h3>
-                <p>{{ t.description || '' }} · {{ t.date?.toDate ? (t.date.toDate() | date:'dd/MM/yyyy') : (t.date | date:'dd/MM/yyyy') }}</p>
-              </ion-label>
-              <ion-label slot="end" [class.income-color]="t.type === 'income'" [class.expense-color]="t.type === 'expense'">
-                {{ t.type === 'income' ? '+' : '-' }}{{ t.amount | currency:currency:'symbol-narrow':'1.2-2' }}
-              </ion-label>
-            </ion-item>
-          }
-        </ion-list>
-      }
+      </section>
+      <section class="transactions-section">
+        <div class="section-header">
+          <div>
+            <p class="section-eyebrow">
+              Actividad reciente
+            </p>
+            <h2>
+              Últimos movimientos
+            </h2>
+          </div>
+          <ion-button
+            fill="clear"
+            size="small"
+            routerLink="/transactions"
+            class="view-all-button">
+            Ver todos
+            <ion-icon
+              slot="end"
+              name="arrow-forward-outline">
+            </ion-icon>
+          </ion-button>
+        </div>
+        @if (recentTransactions().length === 0) {
+          <div class="empty-transactions">
+            <div class="empty-transactions-icon">
+              <ion-icon name="list-outline"></ion-icon>
+            </div>
+            <h3>No hay movimientos</h3>
+            <p>
+              Todavía no tienes movimientos registrados este mes.
+            </p>
+          </div>
+        } @else {
+          <div class="transactions-list">
+            @for (t of recentTransactions(); track t.id) {
+              <div class="transaction-item">
+                <div
+                  class="transaction-icon"
+                  [class.income]="t.type === 'income'"
+                  [class.expense]="t.type === 'expense'">
+                  <ion-icon
+                    [name]="t.type === 'income'
+                      ? 'trending-up-outline'
+                      : 'trending-down-outline'">
+                  </ion-icon>
+                </div>
+                <div class="transaction-info">
+                  <h3>
+                    {{ t.categoryName || 'Sin categoría' }}
+                  </h3>
+                  <p>
+                    {{ t.description || 'Sin descripción' }}
+                  </p>
+                  <span class="transaction-date">
+                    {{ t.date?.toDate
+                      ? (t.date.toDate() | date:'dd/MM/yyyy')
+                      : (t.date | date:'dd/MM/yyyy') }}
+                  </span>
+                </div>
+                <div class="transaction-amount">
+                  <span
+                    [class.income-color]="t.type === 'income'"
+                    [class.expense-color]="t.type === 'expense'">
+                    {{ t.type === 'income' ? '+' : '-' }}
+                    {{ t.amount | currency:currency:'symbol-narrow':'1.2-2' }}
+                  </span>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </section>
     </div>
   }
 </ion-content>

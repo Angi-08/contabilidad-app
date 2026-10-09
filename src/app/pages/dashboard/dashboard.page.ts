@@ -12,7 +12,9 @@ import { Transaction } from '../../core/models/transaction.model';
 import { addIcons } from 'ionicons';
 import {
   trendingUpOutline, trendingDownOutline, walletOutline,
-  addOutline, arrowForwardOutline, listOutline
+  addOutline, arrowForwardOutline, listOutline,
+  businessOutline,
+  calendarOutline
 } from 'ionicons/icons';
 import { startOfMonth, endOfMonth } from 'date-fns';
 
@@ -44,7 +46,7 @@ export class DashboardPage implements OnInit {
   constructor() {
     addIcons({
       trendingUpOutline, trendingDownOutline, walletOutline,
-      addOutline, arrowForwardOutline, listOutline
+      addOutline, arrowForwardOutline, listOutline, businessOutline, calendarOutline
     });
   }
 
@@ -70,7 +72,9 @@ export class DashboardPage implements OnInit {
         this.loading.set(false);
         event?.target?.complete();
       },
-      error: () => {
+      error: error => {
+        console.error('Error cargando dashboard:', error);
+        this.transactions.set([]);
         this.loading.set(false);
         event?.target?.complete();
       }
@@ -82,6 +86,6 @@ export class DashboardPage implements OnInit {
   }
 
   get currency(): string {
-    return this.selectedBusiness?.currency || 'MXN';
+    return this.selectedBusiness?.currency || 'COP';
   }
 }

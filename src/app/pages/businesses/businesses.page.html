@@ -1,59 +1,134 @@
 <ion-header>
-  <ion-toolbar color="primary">
+  <ion-toolbar>
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
     <ion-title>Mis Negocios</ion-title>
   </ion-toolbar>
 </ion-header>
-
-<ion-content>
+<ion-content [fullscreen]="true">
   @if (loading()) {
-    <div class="ion-text-center ion-padding">
-      <p>Cargando...</p>
+    
+    <div class="loading-state">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Cargando tus negocios...</p>
     </div>
   } @else if (businesses().length === 0) {
-    <div class="empty-state ion-text-center ion-padding">
-      <ion-icon name="business-outline" style="font-size: 64px; color: var(--ion-color-medium);"></ion-icon>
+    
+    <div class="empty-state">
+      <div class="empty-icon">
+        <ion-icon name="business-outline"></ion-icon>
+      </div>
+      <span class="empty-eyebrow">
+        Comienza ahora
+      </span>
       <h2>No tienes negocios</h2>
-      <p>Crea tu primer negocio para empezar a registrar movimientos.</p>
-      <ion-button (click)="openCreateModal()">
-        <ion-icon slot="start" name="add-outline"></ion-icon>
+      <p>
+        Crea tu primer negocio para comenzar a registrar
+        y controlar tus movimientos financieros.
+      </p>
+      <ion-button
+        class="btn-cta"
+        (click)="openCreateModal()">
+        <ion-icon
+          slot="start"
+          name="add-outline">
+        </ion-icon>
         Crear negocio
       </ion-button>
     </div>
   } @else {
-    <ion-list>
-      @for (business of businesses(); track business.id) {
-        <ion-item-sliding>
-          <ion-item button (click)="selectBusiness(business)" [detail]="false">
-            <ion-icon
-              slot="start"
-              [name]="isSelected(business) ? 'checkmark-circle' : 'business-outline'"
-              [color]="isSelected(business) ? 'success' : 'medium'">
-            </ion-icon>
-            <ion-label>
-              <h2>{{ business.name }}</h2>
-              <p>{{ business.description || 'Sin descripción' }} · {{ business.currency }}</p>
-            </ion-label>
-            @if (isSelected(business)) {
-              <ion-label slot="end" color="success">Activo</ion-label>
-            }
-          </ion-item>
-
-          <ion-item-options side="end">
-            <ion-item-option color="danger" (click)="confirmDelete(business)">
-              <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
-            </ion-item-option>
-          </ion-item-options>
-        </ion-item-sliding>
-      }
-    </ion-list>
+    
+    <div class="page-container has-fab">
+      <div class="page-intro">
+        <div>
+          <span class="page-eyebrow">
+            Administración
+          </span>
+          <h1>
+            Tus negocios
+          </h1>
+          <p>
+            Selecciona el negocio que deseas administrar.
+          </p>
+        </div>
+        <div class="count-badge">
+          {{ businesses().length }}
+        </div>
+      </div>
+      <div class="card-list">
+        @for (business of businesses(); track business.id) {
+          <ion-item-sliding>
+            <ion-item
+              button
+              [detail]="false"
+              class="item-card business-item"
+              [class.business-selected]="isSelected(business)"
+              (click)="selectBusiness(business)">
+              
+              <div
+                slot="start"
+                class="business-icon"
+                [class.business-icon-selected]="isSelected(business)">
+                <ion-icon
+                  [name]="isSelected(business)
+                    ? 'checkmark-outline'
+                    : 'business-outline'">
+                </ion-icon>
+              </div>
+              
+              <ion-label>
+                <div class="business-title-row">
+                  <h2>
+                    {{ business.name }}
+                  </h2>
+                  @if (isSelected(business)) {
+                    <span class="active-badge">
+                      <span class="active-dot"></span>
+                      Activo
+                    </span>
+                  }
+                </div>
+                <p class="business-description">
+                  {{ business.description || 'Sin descripción' }}
+                </p>
+                <div class="business-meta">
+                  <span class="currency-badge">
+                    {{ business.currency }}
+                  </span>
+                  <span class="select-hint">
+                    {{ isSelected(business)
+                      ? 'Negocio seleccionado'
+                      : 'Toca para seleccionar' }}
+                  </span>
+                </div>
+              </ion-label>
+            </ion-item>
+            
+            <ion-item-options side="end">
+              <ion-item-option
+                color="danger"
+                (click)="confirmDelete(business)">
+                <ion-icon
+                  slot="icon-only"
+                  name="trash-outline">
+                </ion-icon>
+              </ion-item-option>
+            </ion-item-options>
+          </ion-item-sliding>
+        }
+      </div>
+    </div>
   }
-
-  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-    <ion-fab-button (click)="openCreateModal()">
-      <ion-icon name="add-outline"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
+  
+  @if (!loading()) {
+    <ion-fab
+      slot="fixed"
+      vertical="bottom"
+      horizontal="end">
+      <ion-fab-button (click)="openCreateModal()">
+        <ion-icon name="add-outline"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+  }
 </ion-content>

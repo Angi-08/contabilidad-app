@@ -1,0 +1,47 @@
+<ion-header class="modal-header">
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-button fill="clear" (click)="close()">
+                <ion-icon name="close-outline"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-title>Nueva categoría</ion-title>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content>
+    <div class="modal-container">
+        <div class="modal-intro">
+            <div class="intro-icon">
+                <ion-icon name="pricetag-outline"></ion-icon>
+            </div>
+            <h2>Crear categoría</h2>
+            <p>Define cómo quieres clasificar este movimiento.</p>
+        </div>
+
+        <div class="form">
+            <ion-item class="form-item">
+                <ion-input label="Nombre" labelPlacement="floating" [(ngModel)]="name"
+                    placeholder="Ej. Alimentación"></ion-input>
+            </ion-item>
+
+            <div class="type-label">Tipo de categoría</div>
+
+            <ion-segment [(ngModel)]="type">
+                <ion-segment-button value="income">
+                    <ion-icon name="trending-up-outline"></ion-icon>
+                    <ion-label>Ingreso</ion-label>
+                </ion-segment-button>
+                <ion-segment-button value="expense">
+                    <ion-icon name="trending-down-outline"></ion-icon>
+                    <ion-label>Gasto</ion-label>
+                </ion-segment-button>
+            </ion-segment>
+        </div>
+
+        <ion-button expand="block" class="btn-cta" [disabled]="!name.trim()" (click)="create()">
+            <ion-icon slot="start" name="pricetag-outline"></ion-icon>
+            Crear categoría
+        </ion-button>
+    </div>
+</ion-content>

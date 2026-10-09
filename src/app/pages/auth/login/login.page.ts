@@ -2,13 +2,14 @@ import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import {
-  IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonInput,
-  IonButton, IonText, IonSpinner, IonIcon, ToastController
+  IonContent, IonItem, IonInput, IonButton, IonSpinner, IonIcon, ToastController
 } from '@ionic/angular/standalone';
 import { AuthService } from '../../../core/services/auth.service';
 import { CommonModule } from '@angular/common';
 import { addIcons } from 'ionicons';
-import { logInOutline, personAddOutline } from 'ionicons/icons';
+import {
+  walletOutline, mailOutline, lockClosedOutline, arrowForwardOutline, shieldCheckmarkOutline
+} from 'ionicons/icons';
 
 @Component({
   selector: 'app-login',
@@ -17,8 +18,7 @@ import { logInOutline, personAddOutline } from 'ionicons/icons';
   standalone: true,
   imports: [
     CommonModule, ReactiveFormsModule, RouterLink,
-    IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonInput,
-    IonButton, IonText, IonSpinner, IonIcon
+    IonContent, IonItem, IonInput, IonButton, IonSpinner, IonIcon
   ]
 })
 export class LoginPage {
@@ -31,7 +31,11 @@ export class LoginPage {
   loading = false;
 
   constructor() {
-    addIcons({ logInOutline, personAddOutline });
+    addIcons({
+      walletOutline, mailOutline, lockClosedOutline,
+      arrowForwardOutline, shieldCheckmarkOutline
+    });
+
     this.form = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]]

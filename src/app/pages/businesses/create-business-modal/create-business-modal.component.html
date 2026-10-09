@@ -1,0 +1,48 @@
+<ion-header class="modal-header">
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-button fill="clear" (click)="close()">
+                <ion-icon name="close-outline"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-title>Nuevo negocio</ion-title>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content>
+    <div class="modal-container">
+        <div class="modal-intro">
+            <div class="intro-icon">
+                <ion-icon name="business-outline"></ion-icon>
+            </div>
+            <h2>Crear negocio</h2>
+            <p>Registra un negocio para comenzar a controlar tus ingresos y gastos.</p>
+        </div>
+
+        <div class="form">
+            <ion-item class="form-item">
+                <ion-input label="Nombre del negocio" labelPlacement="floating" [(ngModel)]="name"
+                    placeholder="Ej. Mi tienda"></ion-input>
+            </ion-item>
+
+            <ion-item class="form-item">
+                <ion-input label="Descripción" labelPlacement="floating" [(ngModel)]="description"
+                    placeholder="Opcional"></ion-input>
+            </ion-item>
+
+            <ion-item class="form-item">
+                <ion-select label="Moneda" labelPlacement="floating" [(ngModel)]="currency" interface="action-sheet">
+                    <ion-select-option value="MXN">MXN - Peso mexicano</ion-select-option>
+                    <ion-select-option value="COP">COP - Peso colombiano</ion-select-option>
+                    <ion-select-option value="USD">USD - Dólar estadounidense</ion-select-option>
+                    <ion-select-option value="EUR">EUR - Euro</ion-select-option>
+                </ion-select>
+            </ion-item>
+        </div>
+
+        <ion-button expand="block" class="btn-cta" [disabled]="!name.trim()" (click)="create()">
+            <ion-icon slot="start" name="business-outline"></ion-icon>
+            Crear negocio
+        </ion-button>
+    </div>
+</ion-content>

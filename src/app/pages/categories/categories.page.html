@@ -1,60 +1,72 @@
 <ion-header>
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button>
-    </ion-buttons>
+  <ion-toolbar>
+    <ion-buttons slot="start"><ion-menu-button></ion-menu-button></ion-buttons>
     <ion-title>Categorías</ion-title>
   </ion-toolbar>
-  <ion-toolbar>
+
+  <ion-toolbar class="filter-toolbar">
     <ion-segment [value]="filterType()" (ionChange)="onFilterChange($event)">
-      <ion-segment-button value="all">
-        <ion-label>Todas</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="income">
-        <ion-label>Ingresos</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="expense">
-        <ion-label>Gastos</ion-label>
-      </ion-segment-button>
+      <ion-segment-button value="all"><ion-label>Todas</ion-label></ion-segment-button>
+      <ion-segment-button value="income"><ion-label>Ingresos</ion-label></ion-segment-button>
+      <ion-segment-button value="expense"><ion-label>Gastos</ion-label></ion-segment-button>
     </ion-segment>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
   @if (loading()) {
-    <div class="ion-text-center ion-padding"><p>Cargando...</p></div>
+    <div class="loading-state">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Cargando categorías...</p>
+    </div>
   } @else if (categories().length === 0) {
-    <div class="empty-state ion-text-center ion-padding">
-      <ion-icon name="pricetag-outline" style="font-size: 64px; color: var(--ion-color-medium);"></ion-icon>
+    <div class="empty-state">
+      <div class="empty-icon">
+        <ion-icon name="pricetag-outline"></ion-icon>
+      </div>
+      <span class="empty-eyebrow">Organización</span>
       <h2>Sin categorías</h2>
       <p>Crea categorías para organizar tus ingresos y gastos.</p>
     </div>
   } @else {
-    <ion-list>
-      @for (cat of categories(); track cat.id) {
-        <ion-item-sliding>
-          <ion-item>
-            <ion-icon
-              slot="start"
-              name="pricetag-outline"
-              [color]="cat.type === 'income' ? 'success' : 'danger'">
-            </ion-icon>
-            <ion-label>
-              <h2>{{ cat.name }}</h2>
-            </ion-label>
-            <ion-chip [color]="cat.type === 'income' ? 'success' : 'danger'" slot="end">
-              {{ cat.type === 'income' ? 'Ingreso' : 'Gasto' }}
-            </ion-chip>
-          </ion-item>
+    <div class="page-container has-fab">
+      <div class="page-intro">
+        <div>
+          <span class="page-eyebrow">Organización financiera</span>
+          <h2>Tus categorías</h2>
+          <p>Clasifica tus movimientos para llevar un mejor control.</p>
+        </div>
+        <span class="count-badge">{{ categories().length }}</span>
+      </div>
 
-          <ion-item-options side="end">
-            <ion-item-option color="danger" (click)="confirmDelete(cat)">
-              <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
-            </ion-item-option>
-          </ion-item-options>
-        </ion-item-sliding>
-      }
-    </ion-list>
+      <div class="card-list">
+        @for (cat of categories(); track cat.id) {
+          <ion-item-sliding>
+            <ion-item class="item-card">
+              <div class="category-icon" [class.income]="cat.type === 'income'" [class.expense]="cat.type === 'expense'" slot="start">
+                <ion-icon name="pricetag-outline"></ion-icon>
+              </div>
+
+              <ion-label>
+                <h2>{{ cat.name }}</h2>
+                <p>{{ cat.type === 'income' ? 'Ingreso' : 'Gasto' }}</p>
+              </ion-label>
+
+              <span class="type-badge" [class.income]="cat.type === 'income'" [class.expense]="cat.type === 'expense'">
+                <span></span>
+                {{ cat.type === 'income' ? 'Ingreso' : 'Gasto' }}
+              </span>
+            </ion-item>
+
+            <ion-item-options side="end">
+              <ion-item-option color="danger" (click)="confirmDelete(cat)">
+                <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+              </ion-item-option>
+            </ion-item-options>
+          </ion-item-sliding>
+        }
+      </div>
+    </div>
   }
 
   <ion-fab slot="fixed" vertical="bottom" horizontal="end">

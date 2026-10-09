@@ -2,16 +2,16 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonMenuButton,
-  IonList, IonItem, IonLabel, IonIcon, IonFab, IonFabButton, IonItemSliding,
-  IonItemOptions, IonItemOption, IonRefresher, IonRefresherContent,
-  AlertController, ToastController
+  IonList, IonItem, IonLabel, IonIcon, IonButton, IonFab, IonFabButton,
+  IonItemSliding, IonItemOptions, IonItemOption, IonRefresher, IonRefresherContent,
+  IonSpinner, AlertController, ToastController
 } from '@ionic/angular/standalone';
 import { RouterLink } from '@angular/router';
 import { BusinessService } from '../../core/services/business.service';
 import { TransactionService } from '../../core/services/transaction.service';
 import { Transaction } from '../../core/models/transaction.model';
 import { addIcons } from 'ionicons';
-import { addOutline, trashOutline, createOutline, trendingUpOutline, trendingDownOutline } from 'ionicons/icons';
+import { addOutline, trashOutline, listOutline, trendingUpOutline, trendingDownOutline } from 'ionicons/icons';
 
 @Component({
   selector: 'app-transactions',
@@ -21,8 +21,8 @@ import { addOutline, trashOutline, createOutline, trendingUpOutline, trendingDow
   imports: [
     CommonModule, CurrencyPipe, DatePipe, RouterLink,
     IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonMenuButton,
-    IonList, IonItem, IonLabel, IonIcon, IonFab, IonFabButton, IonItemSliding,
-    IonItemOptions, IonItemOption, IonRefresher, IonRefresherContent
+    IonList, IonItem, IonLabel, IonIcon, IonButton, IonFab, IonFabButton,
+    IonItemSliding, IonItemOptions, IonItemOption, IonRefresher, IonRefresherContent, IonSpinner
   ]
 })
 export class TransactionsPage implements OnInit {
@@ -35,7 +35,7 @@ export class TransactionsPage implements OnInit {
   loading = signal(true);
 
   constructor() {
-    addIcons({ addOutline, trashOutline, createOutline, trendingUpOutline, trendingDownOutline });
+    addIcons({ addOutline, trashOutline, listOutline, trendingUpOutline, trendingDownOutline });
   }
 
   ngOnInit() {
@@ -44,6 +44,7 @@ export class TransactionsPage implements OnInit {
 
   loadTransactions(event?: any) {
     const businessId = this.businessService.getSelectedBusinessId();
+
     if (!businessId) {
       this.loading.set(false);
       event?.target?.complete();
@@ -51,13 +52,16 @@ export class TransactionsPage implements OnInit {
     }
 
     this.loading.set(true);
+
     this.transactionService.getTransactions(businessId, 100).subscribe({
-      next: (data) => {
+      next: data => {
         this.transactions.set(data);
         this.loading.set(false);
         event?.target?.complete();
       },
-      error: () => {
+      error: error => {
+        console.error('Error cargando movimientos:', error);
+        this.transactions.set([]);
         this.loading.set(false);
         event?.target?.complete();
       }
@@ -74,18 +78,16 @@ export class TransactionsPage implements OnInit {
       message: '¿Seguro que quieres eliminar este movimiento?',
       buttons: [
         { text: 'Cancelar', role: 'cancel' },
-        {
-          text: 'Eliminar',
-          role: 'destructive',
-          handler: () => this.deleteTransaction(t)
-        }
+        { text: 'Eliminar', role: 'destructive', handler: () => this.deleteTransaction(t) }
       ]
     });
+
     await alert.present();
   }
 
   deleteTransaction(t: Transaction) {
     if (!t.id) return;
+
     this.transactionService.deleteTransaction(t.id).subscribe({
       next: async () => {
         const toast = await this.toastCtrl.create({
@@ -93,6 +95,7 @@ export class TransactionsPage implements OnInit {
           duration: 2000,
           color: 'success'
         });
+
         await toast.present();
         this.loadTransactions();
       }

@@ -1,13 +1,14 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonMenuButton,
-  IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonList, IonItem,
-  IonLabel, IonSelect, IonSelectOption, IonButton
+  IonIcon, IonSelect, IonSelectOption, IonSpinner
 } from '@ionic/angular/standalone';
 import { BusinessService } from '../../core/services/business.service';
 import { TransactionService } from '../../core/services/transaction.service';
 import { Transaction } from '../../core/models/transaction.model';
+import { addIcons } from 'ionicons';
+import { calendarOutline, pieChartOutline, trendingUpOutline, trendingDownOutline, walletOutline } from 'ionicons/icons';
 import { startOfMonth, endOfMonth, subMonths, startOfYear, endOfYear } from 'date-fns';
 
 @Component({
@@ -18,8 +19,7 @@ import { startOfMonth, endOfMonth, subMonths, startOfYear, endOfYear } from 'dat
   imports: [
     CommonModule, CurrencyPipe,
     IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonMenuButton,
-    IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonList, IonItem,
-    IonLabel, IonSelect, IonSelectOption, IonButton
+    IonIcon, IonSelect, IonSelectOption, IonSpinner
   ]
 })
 export class ReportsPage implements OnInit {
@@ -34,12 +34,13 @@ export class ReportsPage implements OnInit {
   expenses = computed(() => this.transactionService.sumByType(this.transactions(), 'expense'));
   balance = computed(() => this.income() - this.expenses());
 
-  // Agrupación por categoría
   byCategory = computed(() => {
     const map = new Map<string, { name: string; type: string; total: number }>();
+
     for (const t of this.transactions()) {
       const key = t.categoryId || 'sin-categoria';
       const existing = map.get(key);
+
       if (existing) {
         existing.total += t.amount;
       } else {
@@ -50,8 +51,13 @@ export class ReportsPage implements OnInit {
         });
       }
     }
+
     return Array.from(map.values()).sort((a, b) => b.total - a.total);
   });
+
+  constructor() {
+    addIcons({ calendarOutline, pieChartOutline, trendingUpOutline, trendingDownOutline, walletOutline });
+  }
 
   ngOnInit() {
     this.loadReport();
@@ -67,8 +73,10 @@ export class ReportsPage implements OnInit {
     if (!businessId) return;
 
     this.loading.set(true);
-    let start: Date, end: Date;
+
     const now = new Date();
+    let start: Date;
+    let end: Date;
 
     switch (this.period()) {
       case 'previous':
@@ -85,7 +93,7 @@ export class ReportsPage implements OnInit {
     }
 
     this.transactionService.getTransactionsByDateRange(businessId, start, end).subscribe({
-      next: (data) => {
+      next: data => {
         this.transactions.set(data);
         this.loading.set(false);
       },

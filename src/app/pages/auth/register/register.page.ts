@@ -2,13 +2,15 @@ import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import {
-  IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonInput,
-  IonButton, IonText, IonSpinner, IonIcon, IonBackButton, IonButtons, ToastController
+  IonContent, IonItem, IonInput, IonButton, IonSpinner, IonIcon, IonText, ToastController
 } from '@ionic/angular/standalone';
 import { AuthService } from '../../../core/services/auth.service';
 import { CommonModule } from '@angular/common';
 import { addIcons } from 'ionicons';
-import { personAddOutline } from 'ionicons/icons';
+import {
+  walletOutline, personOutline, mailOutline, lockClosedOutline,
+  arrowBackOutline, arrowForwardOutline, alertCircleOutline, shieldCheckmarkOutline
+} from 'ionicons/icons';
 
 @Component({
   selector: 'app-register',
@@ -17,8 +19,7 @@ import { personAddOutline } from 'ionicons/icons';
   standalone: true,
   imports: [
     CommonModule, ReactiveFormsModule, RouterLink,
-    IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonInput,
-    IonButton, IonText, IonSpinner, IonIcon, IonBackButton, IonButtons
+    IonContent, IonItem, IonInput, IonButton, IonSpinner, IonIcon, IonText
   ]
 })
 export class RegisterPage {
@@ -31,7 +32,12 @@ export class RegisterPage {
   loading = false;
 
   constructor() {
-    addIcons({ personAddOutline });
+    addIcons({
+      walletOutline, personOutline, mailOutline, lockClosedOutline,
+      arrowBackOutline, arrowForwardOutline, alertCircleOutline,
+      shieldCheckmarkOutline
+    });
+
     this.form = this.fb.group({
       displayName: ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.email]],

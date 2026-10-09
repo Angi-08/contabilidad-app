@@ -4,13 +4,15 @@ import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonMenuButton,
   IonList, IonItem, IonLabel, IonIcon, IonButton, IonFab, IonFabButton,
   IonItemSliding, IonItemOptions, IonItemOption, AlertController, ToastController,
-  ModalController
+  ModalController, IonSpinner
 } from '@ionic/angular/standalone';
 import { BusinessService } from '../../core/services/business.service';
 import { Business } from '../../core/models/business.model';
 import { addIcons } from 'ionicons';
-import { addOutline, createOutline, trashOutline, checkmarkCircle, businessOutline } from 'ionicons/icons';
+import { addOutline, createOutline, trashOutline, checkmarkCircle, businessOutline, checkmarkOutline } from 'ionicons/icons';
 import { FormsModule } from '@angular/forms';
+import { CreateBusinessModalComponent } from './create-business-modal/create-business-modal.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-businesses',
@@ -21,19 +23,22 @@ import { FormsModule } from '@angular/forms';
     CommonModule, FormsModule,
     IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonMenuButton,
     IonList, IonItem, IonLabel, IonIcon, IonButton, IonFab, IonFabButton,
-    IonItemSliding, IonItemOptions, IonItemOption
+    IonItemSliding, IonItemOptions, IonItemOption, IonSpinner,
+    CreateBusinessModalComponent
   ]
 })
 export class BusinessesPage implements OnInit {
   private businessService = inject(BusinessService);
+  private router = inject(Router);
   private alertCtrl = inject(AlertController);
   private toastCtrl = inject(ToastController);
+  private modalCtrl = inject(ModalController);
 
   businesses = signal<Business[]>([]);
   loading = signal(true);
 
   constructor() {
-    addIcons({ addOutline, createOutline, trashOutline, checkmarkCircle, businessOutline });
+    addIcons({ addOutline, createOutline, trashOutline, checkmarkCircle, businessOutline, checkmarkOutline });
   }
 
   ngOnInit() {
@@ -58,6 +63,7 @@ export class BusinessesPage implements OnInit {
 
   selectBusiness(business: Business) {
     this.businessService.setSelectedBusiness(business);
+    this.router.navigate(['/dashboard']);
   }
 
   isSelected(business: Business): boolean {
@@ -65,33 +71,23 @@ export class BusinessesPage implements OnInit {
   }
 
   async openCreateModal() {
-    const alert = await this.alertCtrl.create({
-      header: 'Nuevo negocio',
-      inputs: [
-        { name: 'name', type: 'text', placeholder: 'Nombre del negocio', attributes: { required: true } },
-        { name: 'description', type: 'text', placeholder: 'Descripción (opcional)' },
-        { name: 'currency', type: 'text', placeholder: 'Moneda (ej: MXN)', value: 'MXN' }
-      ],
-      buttons: [
-        { text: 'Cancelar', role: 'cancel' },
-        {
-          text: 'Crear',
-          handler: (data) => {
-            if (!data.name?.trim()) return false;
-            this.createBusiness(data);
-            return true;
-          }
-        }
-      ]
+    const modal = await this.modalCtrl.create({
+      component: CreateBusinessModalComponent,
+      cssClass: 'business-modal'
     });
-    await alert.present();
+  
+    await modal.present();
+  
+    const { data } = await modal.onWillDismiss();
+  
+    if (data) this.createBusiness(data);
   }
 
   createBusiness(data: any) {
     this.businessService.createBusiness({
       name: data.name.trim(),
       description: data.description?.trim() || '',
-      currency: data.currency?.trim() || 'MXN'
+      currency: data.currency?.trim() || 'COP'
     }).subscribe({
       next: async () => {
         const toast = await this.toastCtrl.create({

@@ -1,3 +1,57 @@
-.empty-state {
-  margin-top: 80px;
+.transaction-item {
+  --padding-end: 14px;
+  --inner-padding-end: 0;
+  --min-height: 78px;
+}
+
+.transaction-icon { --tile: 44px; }
+
+.transaction-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  h3 {
+    margin: 0;
+    color: var(--app-text-primary);
+    font-size: 15px;
+    font-weight: 700;
+  }
+}
+
+.transaction-description,
+.transaction-date {
+  margin: 4px 0 0;
+  font-size: 12px;
+}
+
+.transaction-date { color: var(--app-text-muted); }
+
+.transaction-amount {
+  margin-left: 12px;
+  font-size: 15px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .transaction-item {
+    --padding-start: 10px;
+    --padding-end: 10px;
+    --min-height: 72px;
+  }
+
+  .transaction-icon { --tile: 40px; }
+
+  .transaction-main h3 {
+    max-width: 125px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* En móvil el badge se oculta para ganar espacio */
+  .type-badge { display: none; }
+
+  .transaction-amount { font-size: 13px; }
 }

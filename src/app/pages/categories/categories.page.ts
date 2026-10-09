@@ -4,13 +4,14 @@ import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonMenuButton,
   IonList, IonItem, IonLabel, IonIcon, IonFab, IonFabButton, IonItemSliding,
   IonItemOptions, IonItemOption, IonSegment, IonSegmentButton, IonChip,
-  AlertController, ToastController
+  AlertController, ToastController, IonSpinner, ModalController, IonButton
 } from '@ionic/angular/standalone';
 import { BusinessService } from '../../core/services/business.service';
 import { CategoryService } from '../../core/services/category.service';
 import { Category, CategoryType } from '../../core/models/category.model';
 import { addIcons } from 'ionicons';
 import { addOutline, trashOutline, pricetagOutline } from 'ionicons/icons';
+import { CreateCategoryModalComponent } from './create-category-modal/create-category-modal.component';
 
 @Component({
   selector: 'app-categories',
@@ -18,10 +19,11 @@ import { addOutline, trashOutline, pricetagOutline } from 'ionicons/icons';
   styleUrls: ['./categories.page.scss'],
   standalone: true,
   imports: [
-    CommonModule,
+    CommonModule, CreateCategoryModalComponent,
     IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonMenuButton,
     IonList, IonItem, IonLabel, IonIcon, IonFab, IonFabButton, IonItemSliding,
-    IonItemOptions, IonItemOption, IonSegment, IonSegmentButton, IonChip
+    IonItemOptions, IonItemOption, IonSegment, IonSegmentButton, IonChip,
+    IonSpinner, IonButton
   ]
 })
 export class CategoriesPage implements OnInit {
@@ -29,6 +31,7 @@ export class CategoriesPage implements OnInit {
   private categoryService = inject(CategoryService);
   private alertCtrl = inject(AlertController);
   private toastCtrl = inject(ToastController);
+  private modalCtrl = inject(ModalController);
 
   categories = signal<Category[]>([]);
   filterType = signal<CategoryType | 'all'>('all');
@@ -44,20 +47,27 @@ export class CategoriesPage implements OnInit {
 
   loadCategories() {
     const businessId = this.businessService.getSelectedBusinessId();
+
     if (!businessId) {
+      this.categories.set([]);
       this.loading.set(false);
       return;
     }
 
     this.loading.set(true);
-    const type = this.filterType() === 'all' ? undefined : this.filterType() as CategoryType;
 
-    this.categoryService.getCategories(businessId, type).subscribe({
-      next: (data) => {
+    const type = this.filterType() === 'all' ? undefined : this.filterType();
+
+    this.categoryService.getCategories(businessId, type === 'all' ? undefined : type).subscribe({
+      next: data => {
         this.categories.set(data);
         this.loading.set(false);
       },
-      error: () => this.loading.set(false)
+      error: error => {
+        console.error('Error cargando categorías:', error);
+        this.categories.set([]);
+        this.loading.set(false);
+      }
     });
   }
 
@@ -66,75 +76,23 @@ export class CategoriesPage implements OnInit {
     this.loadCategories();
   }
 
-  async openCreateModal() {
-    const alert = await this.alertCtrl.create({
-      header: 'Nueva categoría',
-      inputs: [
-        { name: 'name', type: 'text', placeholder: 'Nombre de la categoría' },
-        {
-          name: 'type',
-          type: 'radio',
-          label: 'Ingreso',
-          value: 'income',
-          checked: true
-        },
-        {
-          name: 'type',
-          type: 'radio',
-          label: 'Gasto',
-          value: 'expense'
-        }
-      ],
-      buttons: [
-        { text: 'Cancelar', role: 'cancel' },
-        {
-          text: 'Crear',
-          handler: (data) => {
-            // Nota: con radios en alert el valor viene en data.type
-            if (!data.name?.trim()) return false;
-            this.createCategory(data.name.trim(), data.type || 'expense');
-            return true;
-          }
-        }
-      ]
-    });
-    await alert.present();
-  }
-
-  // Versión mejorada del alert para tipo
   async openCreate() {
-    const alert = await this.alertCtrl.create({
-      header: 'Nueva categoría',
-      inputs: [
-        { name: 'name', type: 'text', placeholder: 'Nombre' }
-      ],
-      buttons: [
-        { text: 'Cancelar', role: 'cancel' },
-        {
-          text: 'Ingreso',
-          handler: (data) => {
-            if (data.name?.trim()) {
-              this.createCategory(data.name.trim(), 'income');
-            }
-          }
-        },
-        {
-          text: 'Gasto',
-          handler: (data) => {
-            if (data.name?.trim()) {
-              this.createCategory(data.name.trim(), 'expense');
-            }
-          }
-        }
-      ]
+    const modal = await this.modalCtrl.create({
+      component: CreateCategoryModalComponent,
+      cssClass: 'category-modal'
     });
-    await alert.present();
+
+    await modal.present();
+
+    const { data } = await modal.onWillDismiss();
+
+    if (data?.name && data?.type) this.createCategory(data.name, data.type);
   }
 
   createCategory(name: string, type: CategoryType) {
     const businessId = this.businessService.getSelectedBusinessId();
     if (!businessId) return;
-
+  
     this.categoryService.createCategory({ businessId, name, type }).subscribe({
       next: async () => {
         const toast = await this.toastCtrl.create({
@@ -144,6 +102,16 @@ export class CategoriesPage implements OnInit {
         });
         await toast.present();
         this.loadCategories();
+      },
+      error: async error => {
+        const toast = await this.toastCtrl.create({
+          message: error.message === 'CATEGORY_EXISTS'
+            ? 'Ya existe una categoría con ese nombre y tipo'
+            : 'No se pudo crear la categoría',
+          duration: 2500,
+          color: 'danger'
+        });
+        await toast.present();
       }
     });
   }
@@ -158,13 +126,36 @@ export class CategoriesPage implements OnInit {
           text: 'Eliminar',
           role: 'destructive',
           handler: () => {
-            if (cat.id) {
-              this.categoryService.deleteCategory(cat.id).subscribe(() => this.loadCategories());
-            }
+            const businessId = this.businessService.getSelectedBusinessId();
+  
+            if (!cat.id || !businessId) return;
+  
+            this.categoryService.deleteCategory(cat.id, businessId).subscribe({
+              next: async () => {
+                const toast = await this.toastCtrl.create({
+                  message: 'Categoría eliminada',
+                  duration: 2000,
+                  color: 'success'
+                });
+                await toast.present();
+                this.loadCategories();
+              },
+              error: async error => {
+                const toast = await this.toastCtrl.create({
+                  message: error.message === 'CATEGORY_IN_USE'
+                    ? 'No puedes eliminar esta categoría porque tiene movimientos asociados'
+                    : 'No se pudo eliminar la categoría',
+                  duration: 3000,
+                  color: 'danger'
+                });
+                await toast.present();
+              }
+            });
           }
         }
       ]
     });
+  
     await alert.present();
   }
 }

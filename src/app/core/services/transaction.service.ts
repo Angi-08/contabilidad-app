@@ -1,18 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import {
-  Firestore,
-  collection,
-  collectionData,
-  doc,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  query,
-  where,
-  orderBy,
-  Timestamp,
-  limit
-} from '@angular/fire/firestore';
+import { Firestore, collection, collectionData, doc, addDoc, updateDoc, deleteDoc, query, where, Timestamp, limit } from '@angular/fire/firestore';
 import { Observable, from, map } from 'rxjs';
 import { Transaction, TransactionType } from '../models/transaction.model';
 import { AuthService } from './auth.service';
@@ -29,11 +16,16 @@ export class TransactionService {
     const q = query(
       collection(this.firestore, this.COLLECTION),
       where('businessId', '==', businessId),
-      orderBy('date', 'desc'),
       limit(maxResults)
     );
 
-    return collectionData(q, { idField: 'id' }) as Observable<Transaction[]>;
+    return collectionData(q, { idField: 'id' }).pipe(
+      map(transactions => (transactions as Transaction[]).sort((a, b) => {
+        const dateA = a.date?.toDate ? a.date.toDate().getTime() : new Date(a.date).getTime();
+        const dateB = b.date?.toDate ? b.date.toDate().getTime() : new Date(b.date).getTime();
+        return dateB - dateA;
+      }))
+    );
   }
 
   getTransactionsByDateRange(
@@ -45,12 +37,17 @@ export class TransactionService {
       collection(this.firestore, this.COLLECTION),
       where('businessId', '==', businessId),
       where('date', '>=', Timestamp.fromDate(startDate)),
-      where('date', '<=', Timestamp.fromDate(endDate)),
-      orderBy('date', 'desc')
+      where('date', '<=', Timestamp.fromDate(endDate))
     );
-
-    return collectionData(q, { idField: 'id' }) as Observable<Transaction[]>;
-  }
+  
+    return collectionData(q, { idField: 'id' }).pipe(
+      map(transactions => (transactions as Transaction[]).sort((a, b) => {
+        const dateA = a.date?.toDate ? a.date.toDate().getTime() : new Date(a.date).getTime();
+        const dateB = b.date?.toDate ? b.date.toDate().getTime() : new Date(b.date).getTime();
+        return dateB - dateA;
+      }))
+    );
+  } 
 
   createTransaction(data: Partial<Transaction>): Observable<string> {
     const uid = this.auth.currentUid;
@@ -77,28 +74,20 @@ export class TransactionService {
     const ref = doc(this.firestore, this.COLLECTION, id);
     const updateData: any = { ...data, updatedAt: Timestamp.now() };
 
-    if (data.date) {
-      updateData.date = Timestamp.fromDate(new Date(data.date));
-    }
+    if (data.date) updateData.date = Timestamp.fromDate(new Date(data.date));
 
     return from(updateDoc(ref, updateData));
   }
 
   deleteTransaction(id: string): Observable<void> {
-    const ref = doc(this.firestore, this.COLLECTION, id);
-    return from(deleteDoc(ref));
+    return from(deleteDoc(doc(this.firestore, this.COLLECTION, id)));
   }
 
-  // Helpers de cálculo
   calculateBalance(transactions: Transaction[]): number {
-    return transactions.reduce((acc, t) => {
-      return t.type === 'income' ? acc + t.amount : acc - t.amount;
-    }, 0);
+    return transactions.reduce((acc, t) => t.type === 'income' ? acc + t.amount : acc - t.amount, 0);
   }
 
   sumByType(transactions: Transaction[], type: TransactionType): number {
-    return transactions
-      .filter(t => t.type === type)
-      .reduce((acc, t) => acc + t.amount, 0);
+    return transactions.filter(t => t.type === type).reduce((acc, t) => acc + t.amount, 0);
   }
 }

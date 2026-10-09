@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonBackButton,
   IonItem, IonInput, IonSelect, IonSelectOption, IonButton, IonSpinner,
-  IonSegment, IonSegmentButton, IonLabel, ToastController
+  IonSegment, IonSegmentButton, IonLabel, ToastController, IonIcon
 } from '@ionic/angular/standalone';
 import { BusinessService } from '../../../core/services/business.service';
 import { CategoryService } from '../../../core/services/category.service';
@@ -13,6 +13,8 @@ import { TransactionService } from '../../../core/services/transaction.service';
 import { Category } from '../../../core/models/category.model';
 import { TransactionType } from '../../../core/models/transaction.model';
 import { Observable } from 'rxjs';
+import { checkmarkOutline, informationCircleOutline, saveOutline, trendingDownOutline, trendingUpOutline } from 'ionicons/icons';
+import { addIcons } from 'ionicons';
 
 @Component({
   selector: 'app-transaction-form',
@@ -23,7 +25,7 @@ import { Observable } from 'rxjs';
     CommonModule, ReactiveFormsModule,
     IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonBackButton,
     IonItem, IonInput, IonSelect, IonSelectOption, IonButton, IonSpinner,
-    IonSegment, IonSegmentButton, IonLabel
+    IonSegment, IonSegmentButton, IonLabel, IonIcon
   ]
 })
 export class TransactionFormPage implements OnInit {
@@ -43,6 +45,7 @@ export class TransactionFormPage implements OnInit {
   type: TransactionType = 'expense';
 
   constructor() {
+    addIcons({ trendingUpOutline, trendingDownOutline, informationCircleOutline, checkmarkOutline, saveOutline });
     this.form = this.fb.group({
       type: ['expense', Validators.required],
       amount: [null, [Validators.required, Validators.min(0.01)]],

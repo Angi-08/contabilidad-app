@@ -1,5 +1,5 @@
 <ion-header>
-  <ion-toolbar color="primary">
+  <ion-toolbar>
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
@@ -7,61 +7,123 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-  <ion-item>
-    <ion-select
-      label="Período"
-      labelPlacement="stacked"
-      [value]="period()"
-      (ionChange)="onPeriodChange($event)"
-      interface="action-sheet">
-      <ion-select-option value="current">Mes actual</ion-select-option>
-      <ion-select-option value="previous">Mes anterior</ion-select-option>
-      <ion-select-option value="year">Año actual</ion-select-option>
-    </ion-select>
-  </ion-item>
-
-  <ion-card>
-    <ion-card-header>
-      <ion-card-title>Resumen – {{ periodLabel }}</ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      <div class="summary-row">
-        <span>Ingresos</span>
-        <strong class="income-color">{{ income() | currency:currency:'symbol-narrow':'1.2-2' }}</strong>
+<ion-content>
+  <div class="page-container">
+    <div class="page-intro">
+      <div>
+        <span class="page-eyebrow">ANÁLISIS FINANCIERO</span>
+        <h1>Reportes</h1>
+        <p>Consulta el comportamiento financiero de tu negocio.</p>
       </div>
-      <div class="summary-row">
-        <span>Gastos</span>
-        <strong class="expense-color">{{ expenses() | currency:currency:'symbol-narrow':'1.2-2' }}</strong>
-      </div>
-      <div class="summary-row total">
-        <span>Balance</span>
-        <strong [class.balance-positive]="balance() >= 0" [class.balance-negative]="balance() < 0">
-          {{ balance() | currency:currency:'symbol-narrow':'1.2-2' }}
-        </strong>
-      </div>
-    </ion-card-content>
-  </ion-card>
+    </div>
 
-  <h3>Por categoría</h3>
+    <div class="period-card">
+      <div class="period-icon">
+        <ion-icon name="calendar-outline"></ion-icon>
+      </div>
+      <ion-select
+        label="Período"
+        labelPlacement="stacked"
+        [value]="period()"
+        (ionChange)="onPeriodChange($event)"
+        interface="action-sheet">
+        <ion-select-option value="current">Mes actual</ion-select-option>
+        <ion-select-option value="previous">Mes anterior</ion-select-option>
+        <ion-select-option value="year">Año actual</ion-select-option>
+      </ion-select>
+    </div>
 
-  @if (byCategory().length === 0) {
-    <p class="ion-text-center" style="color: var(--ion-color-medium);">
-      No hay datos para este período
-    </p>
-  } @else {
-    <ion-list>
-      @for (item of byCategory(); track item.name) {
-        <ion-item>
-          <ion-label>
-            <h3>{{ item.name }}</h3>
-            <p>{{ item.type === 'income' ? 'Ingreso' : 'Gasto' }}</p>
-          </ion-label>
-          <ion-label slot="end" [class.income-color]="item.type === 'income'" [class.expense-color]="item.type === 'expense'">
-            {{ item.total | currency:currency:'symbol-narrow':'1.2-2' }}
-          </ion-label>
-        </ion-item>
-      }
-    </ion-list>
-  }
+    @if (loading()) {
+      <div class="loading-state">
+        <ion-spinner name="crescent"></ion-spinner>
+        <p>Generando reporte...</p>
+      </div>
+    } @else {
+      <section class="summary-section">
+        <div class="section-header">
+          <div>
+            <span class="section-eyebrow">RESUMEN</span>
+            <h2>{{ periodLabel }}</h2>
+          </div>
+        </div>
+
+        <div class="summary-grid">
+          <div class="summary-card income-card">
+            <div class="summary-icon">
+              <ion-icon name="trending-up-outline"></ion-icon>
+            </div>
+            <span>Ingresos</span>
+            <strong>{{ income() | currency:currency:'symbol-narrow':'1.2-2' }}</strong>
+          </div>
+
+          <div class="summary-card expense-card">
+            <div class="summary-icon">
+              <ion-icon name="trending-down-outline"></ion-icon>
+            </div>
+            <span>Gastos</span>
+            <strong>{{ expenses() | currency:currency:'symbol-narrow':'1.2-2' }}</strong>
+          </div>
+
+          <div class="summary-card info-card">
+            <div class="summary-icon">
+              <ion-icon name="wallet-outline"></ion-icon>
+            </div>
+            <span>Balance</span>
+            <strong [class.balance-positive]="balance() >= 0" [class.balance-negative]="balance() < 0">
+              {{ balance() | currency:currency:'symbol-narrow':'1.2-2' }}
+            </strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="category-section">
+        <div class="section-header">
+          <div>
+            <span class="section-eyebrow">DISTRIBUCIÓN</span>
+            <h2>Por categoría</h2>
+          </div>
+          <span class="count-badge">{{ byCategory().length }}</span>
+        </div>
+
+        @if (byCategory().length === 0) {
+          <div class="empty-state">
+            <div class="empty-icon">
+              <ion-icon name="pie-chart-outline"></ion-icon>
+            </div>
+            <h3>Sin datos</h3>
+            <p>No hay movimientos registrados para este período.</p>
+          </div>
+        } @else {
+          <div class="card-list">
+            @for (item of byCategory(); track item.name) {
+              <div class="item-card category-item">
+                <div
+                  class="category-icon"
+                  [class.income]="item.type === 'income'"
+                  [class.expense]="item.type === 'expense'">
+                  <ion-icon [name]="item.type === 'income' ? 'trending-up-outline' : 'trending-down-outline'"></ion-icon>
+                </div>
+
+                <div class="category-info">
+                  <h3>{{ item.name }}</h3>
+                  <span
+                    class="type-badge"
+                    [class.income]="item.type === 'income'"
+                    [class.expense]="item.type === 'expense'">
+                    {{ item.type === 'income' ? 'Ingreso' : 'Gasto' }}
+                  </span>
+                </div>
+
+                <strong
+                  [class.income-color]="item.type === 'income'"
+                  [class.expense-color]="item.type === 'expense'">
+                  {{ item.total | currency:currency:'symbol-narrow':'1.2-2' }}
+                </strong>
+              </div>
+            }
+          </div>
+        }
+      </section>
+    }
+  </div>
 </ion-content>

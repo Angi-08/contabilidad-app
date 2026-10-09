@@ -3,25 +3,45 @@
   @if (!network.isOnline()) {
     <div class="offline-banner">
       <ion-icon name="cloud-offline-outline"></ion-icon>
-      Modo offline – Los cambios se sincronizarán al reconectar
+      <span>Modo offline</span>
+      <small>Los cambios se sincronizarán al reconectar</small>
     </div>
   }
 
   <!-- Side Menu -->
   <ion-menu contentId="main-content" type="overlay">
-    <ion-header>
-      <ion-toolbar color="primary">
-        <ion-title>Contabilidad</ion-title>
+    <ion-header class="menu-header">
+      <ion-toolbar>
+        <div class="menu-brand">
+          <div class="brand-icon">
+            <ion-icon name="wallet-outline"></ion-icon>
+          </div>
+          <div>
+            <strong>Contabilidad</strong>
+            <span>Gestión financiera</span>
+          </div>
+        </div>
       </ion-toolbar>
     </ion-header>
 
     <ion-content>
       <div class="menu-business">
-        <ion-icon name="wallet-outline" size="large"></ion-icon>
-        <h3>{{ selectedBusinessName }}</h3>
+        <div class="business-avatar">
+          <ion-icon name="business-outline"></ion-icon>
+        </div>
+        <div class="business-info">
+          <span>NEGOCIO ACTUAL</span>
+          <h3>{{ selectedBusinessName }}</h3>
+        </div>
+        <ion-button
+          fill="clear"
+          class="change-business-button"
+          (click)="changeBusiness()">
+          <ion-icon slot="icon-only" name="swap-horizontal-outline"></ion-icon>
+        </ion-button>
       </div>
 
-      <ion-list lines="none">
+      <ion-list lines="none" class="menu-list">
         <ion-menu-toggle auto-hide="true">
           <ion-item routerLink="/dashboard" routerLinkActive="selected" detail="false">
             <ion-icon slot="start" name="home-outline"></ion-icon>
@@ -59,7 +79,7 @@
       </ion-list>
     </ion-content>
 
-    <ion-footer>
+    <ion-footer class="menu-footer">
       <ion-toolbar>
         <ion-button expand="block" fill="clear" color="danger" (click)="logout()">
           <ion-icon slot="start" name="log-out-outline"></ion-icon>

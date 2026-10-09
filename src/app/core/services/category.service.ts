@@ -1,18 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import {
-  Firestore,
-  collection,
-  collectionData,
-  doc,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  query,
-  where,
-  orderBy,
-  Timestamp
-} from '@angular/fire/firestore';
-import { Observable, from, map } from 'rxjs';
+import { Firestore, collection, collectionData, doc, addDoc, updateDoc, deleteDoc, query, where, Timestamp, getDocs } from '@angular/fire/firestore';
+import { Observable, from, map, switchMap, throwError } from 'rxjs';
 import { Category, CategoryType } from '../models/category.model';
 
 @Injectable({
@@ -23,47 +11,65 @@ export class CategoryService {
   private readonly COLLECTION = 'categories';
 
   getCategories(businessId: string, type?: CategoryType): Observable<Category[]> {
-    let q = query(
-      collection(this.firestore, this.COLLECTION),
-      where('businessId', '==', businessId),
-      orderBy('name')
+    const conditions = [where('businessId', '==', businessId)];
+
+    if (type) conditions.push(where('type', '==', type));
+
+    return collectionData(
+      query(collection(this.firestore, this.COLLECTION), ...conditions),
+      { idField: 'id' }
+    ).pipe(
+      map(categories => (categories as Category[]).sort((a, b) => a.name.localeCompare(b.name)))
     );
-
-    // Nota: si se filtra por type, se necesita índice compuesto en Firebase
-    if (type) {
-      q = query(
-        collection(this.firestore, this.COLLECTION),
-        where('businessId', '==', businessId),
-        where('type', '==', type),
-        orderBy('name')
-      );
-    }
-
-    return collectionData(q, { idField: 'id' }) as Observable<Category[]>;
   }
 
   createCategory(data: Partial<Category>): Observable<string> {
-    const category: Category = {
-      businessId: data.businessId!,
-      name: data.name!,
-      type: data.type!,
-      color: data.color || (data.type === 'income' ? '#2e7d32' : '#c62828'),
-      icon: data.icon || (data.type === 'income' ? 'trending-up' : 'trending-down'),
-      createdAt: Timestamp.now()
-    };
+    const name = data.name!.trim();
 
-    return from(addDoc(collection(this.firestore, this.COLLECTION), category)).pipe(
-      map(ref => ref.id)
+    return from(getDocs(query(
+      collection(this.firestore, this.COLLECTION),
+      where('businessId', '==', data.businessId),
+      where('type', '==', data.type)
+    ))).pipe(
+      switchMap(snapshot => {
+        const exists = snapshot.docs.some(doc => {
+          const category = doc.data() as Category;
+          return category.name.trim().toLowerCase() === name.toLowerCase();
+        });
+
+        if (exists) return throwError(() => new Error('CATEGORY_EXISTS'));
+
+        const category: Category = {
+          businessId: data.businessId!,
+          name,
+          type: data.type!,
+          color: data.color || (data.type === 'income' ? '#2e7d32' : '#c62828'),
+          icon: data.icon || (data.type === 'income' ? 'trending-up' : 'trending-down'),
+          createdAt: Timestamp.now()
+        };
+
+        return from(addDoc(collection(this.firestore, this.COLLECTION), category)).pipe(
+          map(ref => ref.id)
+        );
+      })
     );
   }
 
   updateCategory(id: string, data: Partial<Category>): Observable<void> {
-    const ref = doc(this.firestore, this.COLLECTION, id);
-    return from(updateDoc(ref, data));
+    return from(updateDoc(doc(this.firestore, this.COLLECTION, id), data));
   }
 
-  deleteCategory(id: string): Observable<void> {
-    const ref = doc(this.firestore, this.COLLECTION, id);
-    return from(deleteDoc(ref));
+  deleteCategory(id: string, businessId: string): Observable<void> {
+    return from(getDocs(query(
+      collection(this.firestore, 'transactions'),
+      where('businessId', '==', businessId),
+      where('categoryId', '==', id)
+    ))).pipe(
+      switchMap(snapshot => {
+        if (!snapshot.empty) return throwError(() => new Error('CATEGORY_IN_USE'));
+
+        return from(deleteDoc(doc(this.firestore, this.COLLECTION, id)));
+      })
+    );
   }
 }

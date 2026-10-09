@@ -1,8 +1,17 @@
-ion-segment {
-  margin-bottom: 8px;
-}
+.transaction-form { max-width: 680px; }
 
-ion-item {
-  --background: transparent;
-  margin-bottom: 8px;
+.form-section { margin-bottom: 24px; }
+
+.category-warning {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: -2px 4px 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--app-warning-light);
+  color: #92400E;
+  font-size: .85rem;
+
+  ion-icon { flex-shrink: 0; font-size: 20px; }
 }

@@ -1,9 +1,32 @@
-.register-container {
-  max-width: 400px;
-  margin: 20px auto 0;
+.auth-page {
+  align-items: flex-start;
+  padding-top: 24px;
 }
 
-ion-item {
-  --background: transparent;
-  margin-bottom: 12px;
+.top-bar {
+  display: flex;
+  align-items: center;
+  height: 42px;
+}
+
+.back-button {
+  --color: var(--app-text-secondary);
+  --padding-start: 0;
+  --padding-end: 0;
+  margin: 0;
+  font-size: 21px;
+}
+
+.brand { margin: 18px 0 30px; }
+
+.password-error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: -5px 2px 14px;
+  color: var(--app-expense);
+  font-size: 11px;
+  font-weight: 600;
+
+  ion-icon { font-size: 15px; }
 }

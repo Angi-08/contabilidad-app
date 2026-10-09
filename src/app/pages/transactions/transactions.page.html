@@ -1,5 +1,5 @@
 <ion-header>
-  <ion-toolbar color="primary">
+  <ion-toolbar>
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
@@ -13,41 +13,80 @@
   </ion-refresher>
 
   @if (loading()) {
-    <div class="ion-text-center ion-padding"><p>Cargando...</p></div>
+    <div class="loading-state">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Cargando movimientos...</p>
+    </div>
   } @else if (transactions().length === 0) {
-    <div class="empty-state ion-text-center ion-padding">
-      <ion-icon name="list-outline" style="font-size: 64px; color: var(--ion-color-medium);"></ion-icon>
+    <div class="empty-state">
+      <div class="empty-icon">
+        <ion-icon name="list-outline"></ion-icon>
+      </div>
+      <span class="empty-eyebrow">MOVIMIENTOS</span>
       <h2>Sin movimientos</h2>
-      <p>Registra tu primer ingreso o gasto.</p>
+      <p>Registra tu primer ingreso o gasto para comenzar a llevar el control de tus finanzas.</p>
+      <ion-button class="btn-cta" routerLink="/transactions/new">
+        <ion-icon slot="start" name="add-outline"></ion-icon>
+        Registrar movimiento
+      </ion-button>
     </div>
   } @else {
-    <ion-list>
-      @for (t of transactions(); track t.id) {
-        <ion-item-sliding>
-          <ion-item [routerLink]="['/transactions/edit', t.id]" [detail]="false">
-            <ion-icon
-              slot="start"
-              [name]="t.type === 'income' ? 'trending-up-outline' : 'trending-down-outline'"
-              [color]="t.type === 'income' ? 'success' : 'danger'">
-            </ion-icon>
-            <ion-label>
-              <h3>{{ t.categoryName || 'Sin categoría' }}</h3>
-              <p>{{ t.description || 'Sin descripción' }}</p>
-              <p>{{ formatDate(t.date) | date:'dd/MM/yyyy HH:mm' }}</p>
-            </ion-label>
-            <ion-label slot="end" [class.income-color]="t.type === 'income'" [class.expense-color]="t.type === 'expense'">
-              {{ t.type === 'income' ? '+' : '-' }}{{ t.amount | currency:currency:'symbol-narrow':'1.2-2' }}
-            </ion-label>
-          </ion-item>
+    <div class="page-container has-fab">
+      <div class="page-intro">
+        <div>
+          <span class="page-eyebrow">REGISTRO FINANCIERO</span>
+          <h1>Movimientos</h1>
+          <p>{{ transactions().length }} movimientos registrados</p>
+        </div>
+        <span class="count-badge">{{ transactions().length }}</span>
+      </div>
 
-          <ion-item-options side="end">
-            <ion-item-option color="danger" (click)="confirmDelete(t)">
-              <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
-            </ion-item-option>
-          </ion-item-options>
-        </ion-item-sliding>
-      }
-    </ion-list>
+      <div class="card-list">
+        @for (t of transactions(); track t.id) {
+          <ion-item-sliding>
+            <ion-item class="item-card transaction-item" [routerLink]="['/transactions/edit', t.id]" [detail]="false">
+              <div
+                slot="start"
+                class="transaction-icon"
+                [class.income]="t.type === 'income'"
+                [class.expense]="t.type === 'expense'">
+                <ion-icon [name]="t.type === 'income' ? 'trending-up-outline' : 'trending-down-outline'"></ion-icon>
+              </div>
+
+              <ion-label>
+                <div class="transaction-main">
+                  <h3>{{ t.categoryName || 'Sin categoría' }}</h3>
+                  <span
+                    class="type-badge"
+                    [class.income]="t.type === 'income'"
+                    [class.expense]="t.type === 'expense'">
+                    {{ t.type === 'income' ? 'Ingreso' : 'Gasto' }}
+                  </span>
+                </div>
+
+                <p class="transaction-description">{{ t.description || 'Sin descripción' }}</p>
+                <p class="transaction-date">{{ formatDate(t.date) | date:'dd/MM/yyyy HH:mm' }}</p>
+              </ion-label>
+
+              <div
+                slot="end"
+                class="transaction-amount"
+                [class.income-color]="t.type === 'income'"
+                [class.expense-color]="t.type === 'expense'">
+                <span>{{ t.type === 'income' ? '+' : '-' }}</span>
+                {{ t.amount | currency:currency:'symbol-narrow':'1.2-2' }}
+              </div>
+            </ion-item>
+
+            <ion-item-options side="end">
+              <ion-item-option color="danger" (click)="confirmDelete(t)">
+                <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+              </ion-item-option>
+            </ion-item-options>
+          </ion-item-sliding>
+        }
+      </div>
+    </div>
   }
 
   <ion-fab slot="fixed" vertical="bottom" horizontal="end">
